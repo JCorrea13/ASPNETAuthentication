@@ -1,0 +1,32 @@
+﻿@model ConfArch.Web.Models.LoginModel;
+
+<div>
+    <div>
+        <h1>Login</h1>
+    </div>
+
+    <form asp-route="Login">
+        <input type="hidden" asp-for="ReturnUrl">
+
+        <fieldset>
+            <div>
+                <label asp-for="Username"></label>
+                <input placeholder="Username" asp-for="Username" />
+            </div>
+            <div>
+                <label asp-for="Password"></label>
+                <input placeholder="Password" type="password" asp-for="Password" />
+            </div>
+            <div>
+                <label asp-for="RememberLogin">
+                    <input asp-for="RememberLogin" />
+                    <strong>Remember Me</strong>
+                </label>
+            </div>
+            <div>
+                <button>Login</button>
+            </div>
+        </fieldset>
+    </form>
+</div>
+
