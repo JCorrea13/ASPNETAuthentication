@@ -7,6 +7,7 @@ using ConfArch.Data.Repositories;
 using ConfArch.Web.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -53,6 +54,52 @@ namespace ConfArch.Web.Controllers
                 );
 
             return LocalRedirect(model.ReturnUrl);
+        }
+
+        [AllowAnonymous]
+        public IActionResult LoginWithGoogle(string returnUrl = "/")
+        {
+            var props = new AuthenticationProperties
+            {
+                RedirectUri = Url.Action("GoogleLoginCallback"),
+                Items =
+                {
+                    { "returnUrl", returnUrl }
+                }
+            };
+
+            return Challenge(props, GoogleDefaults.AuthenticationScheme);
+        }
+
+        [AllowAnonymous]
+        public async Task<IActionResult> GoogleLoginCallback()
+        {
+            var result = await HttpContext.AuthenticateAsync(GoogleAuthenticationDefaults.AuthenticationScheme);
+            var externalClaims = result.Principal.Claims.ToList();
+
+            var subjectClaim = externalClaims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
+            var subjectValue = subjectClaim.Value;
+
+            var user = userRepository.GetByGoogleId(subjectValue);
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.Name),
+                new Claim(ClaimTypes.Role, user.Role),
+                new Claim("FavoriteColor", user.FavoriteColor)
+            };
+
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var principal = new ClaimsPrincipal(identity);
+
+            // Deleting the temporary cookie using during google authentication
+            await HttpContext.SignOutAsync(GoogleAuthenticationDefaults.AuthenticationScheme);
+            
+            // Signin with the cookies scheme
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+
+            return LocalRedirect(result.Properties.Items["returnUrl"]);
         }
 
         public async Task<IActionResult> Logout()

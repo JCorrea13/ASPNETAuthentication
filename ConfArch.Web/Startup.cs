@@ -1,6 +1,7 @@
 using ConfArch.Data;
 using ConfArch.Data.Repositories;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Authorization;
@@ -32,8 +33,19 @@ namespace ConfArch.Web
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"),
                     assembly => assembly.MigrationsAssembly(typeof(ConfArchDbContext).Assembly.FullName)));
 
-            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie();
+            services.AddAuthentication(o =>
+            {
+                o.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme; // The Cookies scheme will handle still all the request validations that are not the login
+                // o.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme; // Setting google as the login manager
+            })
+                .AddCookie()
+                .AddCookie(GoogleAuthenticationDefaults.AuthenticationScheme)
+                .AddGoogle(o =>
+                {
+                    o.SignInScheme = GoogleAuthenticationDefaults.AuthenticationScheme;
+                    o.ClientId = Configuration["Google:ClientId"];
+                    o.ClientSecret = Configuration["Google:ClientSecret"];
+                });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
