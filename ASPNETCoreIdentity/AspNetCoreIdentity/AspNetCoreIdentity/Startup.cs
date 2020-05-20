@@ -30,7 +30,11 @@ namespace AspNetCoreIdentity
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
-            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            services.AddDefaultIdentity<ApplicationUser>(options =>
+            {
+                options.SignIn.RequireConfirmedAccount = true;
+                options.Password.RequireNonAlphanumeric = false;
+            })
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddControllersWithViews();
             services.AddRazorPages();
@@ -55,7 +59,7 @@ namespace AspNetCoreIdentity
 
             app.UseRouting();
 
-            app.UseAuthentication();
+            app.UseAuthentication(); // <<-- Important to use authentication
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
