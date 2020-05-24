@@ -27,6 +27,13 @@ namespace ConfArch.Web.Areas.Identity
 
                 services.AddScoped<IUserClaimsPrincipalFactory<ApplicationUser>,
                     ApplicationUserClaimsPrincipalFactory>();
+
+                services.AddAuthentication()
+                .AddGoogle(o =>
+                {
+                    o.ClientId = context.Configuration["Google:ClientId"];
+                    o.ClientSecret = context.Configuration["Google:ClientSecret"];
+                });
             });
         }
     }

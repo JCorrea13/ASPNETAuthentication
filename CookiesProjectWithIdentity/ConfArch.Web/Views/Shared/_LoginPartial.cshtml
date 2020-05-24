@@ -6,7 +6,7 @@
 
 @{
     var fullName = User.Identity.IsAuthenticated ?
-        User.Claims.FirstOrDefault(x => x.Type == "FullName").Value : "";
+        User.Claims.FirstOrDefault(x => x.Type == "FullName")?.Value ?? "Friend" : "";
  }
 
 <ul class="navbar-nav">
