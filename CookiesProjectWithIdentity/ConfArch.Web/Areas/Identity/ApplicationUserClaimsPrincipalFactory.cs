@@ -10,11 +10,12 @@ using System.Threading.Tasks;
 namespace ConfArch.Web.Areas.Identity
 {
     public class ApplicationUserClaimsPrincipalFactory :
-        UserClaimsPrincipalFactory<ApplicationUser>
+        UserClaimsPrincipalFactory<ApplicationUser, IdentityRole>
     {
         public ApplicationUserClaimsPrincipalFactory(
             UserManager<ApplicationUser> userManager,
-            IOptions<IdentityOptions> options) : base(userManager, options)
+            RoleManager<IdentityRole> roleManager,
+            IOptions<IdentityOptions> options) : base(userManager,roleManager, options)
         {
         }
 
