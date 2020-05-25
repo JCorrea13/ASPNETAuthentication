@@ -29,6 +29,11 @@ namespace ConfArch.Web
             services.AddDbContext<ConfArchDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"),
                     assembly => assembly.MigrationsAssembly(typeof(ConfArchDbContext).Assembly.FullName)));
+
+            services.AddAuthorization(options =>
+                {
+                    options.AddPolicy("IsSpeaker", policy => policy.RequireRole("Speaker"));
+                });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
